@@ -17,7 +17,7 @@ async function sendWhatsappMessage(to, templateParams) {
         to,
         type: 'template',
         template: {
-          name: 'gold_update_daily',
+          name: 'bot_diario_ramon_godoy',
           language: { code: 'es' },
           components: [
             {
