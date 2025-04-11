@@ -14,7 +14,8 @@ async function getBTCPrice() {
     });
 
     const price = response.data.bitcoin.usd;
-    return price.toFixed(2);
+    return parseFloat(price.toFixed(2));
+
   } catch (error) {
     console.error('❌ Error al obtener precio de BTC:', error.message);
     return '0.00';
