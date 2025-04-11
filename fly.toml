@@ -7,8 +7,11 @@ app = 'gold-bot-ws'
 primary_region = 'cdg'
 
 [build]
+  command = ""
 
-command = "node src/index.js"
+[processes]
+  app = "node src/index.js"
+
 
 [http_service]
   internal_port = 3000
