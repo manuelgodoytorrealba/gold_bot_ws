@@ -8,6 +8,8 @@ primary_region = 'cdg'
 
 [build]
 
+command = "node src/index.js"
+
 [http_service]
   internal_port = 3000
   force_https = true
