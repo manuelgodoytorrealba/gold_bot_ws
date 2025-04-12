@@ -4,9 +4,9 @@ async function getDolarParaleloRate() {
   let browser = null;
   try {
     console.log('🚀 Iniciando Puppeteer...');
-    console.log('🔍 Chrome path:', process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/google-chrome');
+    console.log('🔍 Chromium path:', process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/chromium');
     
-    browser = await puppeteer.launch({
+    const launchOptions = {
       headless: true,
       args: [
         '--no-sandbox',
@@ -18,15 +18,29 @@ async function getDolarParaleloRate() {
         '--single-process',
         '--no-zygote',
         '--disable-extensions',
-        '--disable-software-rasterizer'
+        '--disable-software-rasterizer',
+        '--disable-features=site-per-process',
+        '--disable-features=IsolateOrigins',
+        '--disable-site-isolation-trials',
+        '--disk-cache-dir=/tmp/chromium-cache',
+        '--disable-web-security',
+        '--disable-features=BlockInsecurePrivateNetworkRequests'
       ],
-      executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/google-chrome'
-    });
+      executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/chromium',
+      ignoreHTTPSErrors: true
+    };
+
+    console.log('⚙️ Launch options:', JSON.stringify(launchOptions, null, 2));
     
+    browser = await puppeteer.launch(launchOptions);
     console.log('✅ Browser iniciado correctamente');
     
     const page = await browser.newPage();
     await page.setViewport({ width: 1920, height: 1080 });
+
+    // Configura el timeout de la página
+    page.setDefaultNavigationTimeout(30000);
+    page.setDefaultTimeout(30000);
 
     console.log('🌐 Navegando a monitordolarvenezuela.com...');
     await page.goto('https://monitordolarvenezuela.com/', {

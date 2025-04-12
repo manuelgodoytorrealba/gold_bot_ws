@@ -28,11 +28,9 @@ COPY . .
 # ==================== FINAL ====================
 FROM base
 
-# 🧱 Instala dependencias necesarias para Puppeteer + Chrome
+# 🧱 Instala dependencias necesarias para Puppeteer + Chromium
 RUN apt-get update && apt-get install --no-install-recommends -y \
-    wget \
-    gnupg \
-    ca-certificates \
+    chromium \
     fonts-liberation \
     libappindicator3-1 \
     libasound2 \
@@ -63,20 +61,17 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     libxtst6 \
     lsb-release \
     xdg-utils \
-    curl \
-    unzip \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# 🧩 Instala Chrome estable
-RUN wget -q -O /tmp/chrome.deb https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb \
-    && apt-get update \
-    && apt-get install -y /tmp/chrome.deb \
-    && rm -rf /var/lib/apt/lists/* /tmp/chrome.deb
-
-# ✅ Configura Puppeteer para usar el Chrome instalado
-ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/google-chrome \
+# ✅ Configura Puppeteer para usar Chromium
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium \
     PUPPETEER_SKIP_DOWNLOAD=true \
-    NODE_OPTIONS="--max-old-space-size=512"
+    NODE_OPTIONS="--max-old-space-size=512" \
+    CHROME_BIN=/usr/bin/chromium \
+    CHROME_PATH=/usr/bin/chromium
+
+# Crea un directorio para el caché de Chromium
+RUN mkdir -p /tmp/chromium-cache
 
 # Copia desde la build
 COPY --from=build /app /app
