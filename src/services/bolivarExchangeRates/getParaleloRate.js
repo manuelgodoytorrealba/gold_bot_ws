@@ -3,6 +3,9 @@ const puppeteer = require('puppeteer');
 async function getDolarParaleloRate() {
   let browser = null;
   try {
+    console.log('🚀 Iniciando Puppeteer...');
+    console.log('🔍 Chrome path:', process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/google-chrome');
+    
     browser = await puppeteer.launch({
       headless: true,
       args: [
@@ -20,14 +23,18 @@ async function getDolarParaleloRate() {
       executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/google-chrome'
     });
     
+    console.log('✅ Browser iniciado correctamente');
+    
     const page = await browser.newPage();
     await page.setViewport({ width: 1920, height: 1080 });
 
+    console.log('🌐 Navegando a monitordolarvenezuela.com...');
     await page.goto('https://monitordolarvenezuela.com/', {
       waitUntil: 'networkidle2',
       timeout: 30000
     });
 
+    console.log('🔍 Esperando selector...');
     await page.waitForSelector('p.font-bold.text-xl', { timeout: 10000 });
 
     const texts = await page.evaluate(() => {
@@ -37,18 +44,28 @@ async function getDolarParaleloRate() {
 
     console.log('📦 Todos los textos encontrados:', texts);
 
+    if (!texts || texts.length < 2) {
+      throw new Error('No se encontraron suficientes valores en la página');
+    }
+
     // Accedemos al segundo valor (índice 1) y limpiamos el texto
     const rawText = texts[1];
     const cleaned = rawText.replace('Bs = ', '').replace(',', '.');
     const rate = parseFloat(cleaned);
 
+    if (isNaN(rate)) {
+      throw new Error('No se pudo convertir el valor a número');
+    }
+
     console.log(`💸 Tasa dólar paralelo extraída: ${rate}`);
     return rate;
   } catch (error) {
     console.error('❌ Error al hacer scraping con Puppeteer:', error.message);
+    console.error('Stack trace:', error.stack);
     return null;
   } finally {
     if (browser) {
+      console.log('🛑 Cerrando browser...');
       await browser.close();
     }
   }
