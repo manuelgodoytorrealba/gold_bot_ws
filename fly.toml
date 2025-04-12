@@ -12,8 +12,7 @@ primary_region = 'cdg'
 [deploy]
   release_command = "node src/index.js"
 
-[processes]
-app = "node src/index.js"
+
 
 [http_service]
   internal_port = 3000
