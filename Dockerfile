@@ -28,9 +28,9 @@ COPY . .
 # ==================== FINAL ====================
 FROM base
 
-# 🧱 Instala dependencias necesarias para Puppeteer + Chromium
+# 🧱 Instala dependencias necesarias para Puppeteer
 RUN apt-get update && apt-get install --no-install-recommends -y \
-    chromium \
+    ca-certificates \
     fonts-liberation \
     libappindicator3-1 \
     libasound2 \
@@ -63,15 +63,12 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     xdg-utils \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# ✅ Configura Puppeteer para usar Chromium
-ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium \
-    PUPPETEER_SKIP_DOWNLOAD=true \
-    NODE_OPTIONS="--max-old-space-size=512" \
-    CHROME_BIN=/usr/bin/chromium \
-    CHROME_PATH=/usr/bin/chromium
+# ✅ Configura Puppeteer
+ENV PUPPETEER_SKIP_DOWNLOAD=false \
+    NODE_OPTIONS="--max-old-space-size=512"
 
-# Crea un directorio para el caché de Chromium
-RUN mkdir -p /tmp/chromium-cache
+# Crea un directorio para el caché de Puppeteer
+RUN mkdir -p /app/.cache/puppeteer
 
 # Copia desde la build
 COPY --from=build /app /app
