@@ -9,6 +9,9 @@ primary_region = 'cdg'
 [build]
 # No necesitas definir "command" aquí si usas [processes]
 
+[deploy]
+  release_command = "node src/index.js"
+
 [processes]
 app = "node src/index.js"
 
@@ -25,3 +28,6 @@ app = "node src/index.js"
   cpu_kind = 'shared'
   cpus = 1
   memory_mb = 1024
+
+[experimental]
+  cmd = ["node", "src/index.js"]
