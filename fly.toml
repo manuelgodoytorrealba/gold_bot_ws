@@ -14,8 +14,8 @@ primary_region = 'cdg'
 
 [env]
   NODE_ENV = "production"
-  PUPPETEER_EXECUTABLE_PATH = "/usr/bin/google-chrome"
-  PUPPETEER_SKIP_DOWNLOAD = "true"
+  PUPPETEER_CACHE_DIR = "/root/.cache/puppeteer"
+  PUPPETEER_SKIP_DOWNLOAD = "false"
 
 [http_service]
   internal_port = 3000

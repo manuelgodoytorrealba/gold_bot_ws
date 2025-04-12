@@ -12,6 +12,7 @@ async function getDolarParaleloRate() {
     
     const launchOptions = {
       headless: true,
+      executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/google-chrome',
       args: [
         '--no-sandbox',
         '--disable-setuid-sandbox',
@@ -30,7 +31,7 @@ async function getDolarParaleloRate() {
         '--disable-features=BlockInsecurePrivateNetworkRequests'
       ],
       ignoreHTTPSErrors: true,
-      userDataDir: process.env.PUPPETEER_CACHE_DIR || '/app/.cache/puppeteer'
+      userDataDir: process.env.PUPPETEER_CACHE_DIR || '/root/.cache/puppeteer'
     };
 
     console.log('⚙️ Launch options:', JSON.stringify(launchOptions, null, 2));

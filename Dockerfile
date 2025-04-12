@@ -28,8 +28,10 @@ COPY . .
 # ==================== FINAL ====================
 FROM base
 
-# 🧱 Instala dependencias mínimas necesarias para Puppeteer
+# 🧱 Instala dependencias mínimas necesarias para Chrome
 RUN apt-get update && apt-get install --no-install-recommends -y \
+    wget \
+    gnupg \
     ca-certificates \
     fonts-liberation \
     libappindicator3-1 \
@@ -63,14 +65,22 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     xdg-utils \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
+# 🌐 Instala el navegador Chrome
+RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
+    && echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list \
+    && apt-get update \
+    && apt-get install -y google-chrome-stable \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
+
 # ✅ Configura Puppeteer
-ENV PUPPETEER_SKIP_DOWNLOAD=false \
-    PUPPETEER_CACHE_DIR=/app/.cache/puppeteer \
+ENV PUPPETEER_SKIP_DOWNLOAD=true \
+    PUPPETEER_EXECUTABLE_PATH=/usr/bin/google-chrome \
+    PUPPETEER_CACHE_DIR=/root/.cache/puppeteer \
     NODE_OPTIONS="--max-old-space-size=512"
 
 # Crea directorio para el caché de Puppeteer
-RUN mkdir -p /app/.cache/puppeteer && \
-    chown -R node:node /app/.cache
+RUN mkdir -p /root/.cache/puppeteer && \
+    chmod -R 777 /root/.cache
 
 # Copia desde la build
 COPY --from=build /app /app
