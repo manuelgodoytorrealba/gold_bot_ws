@@ -14,8 +14,7 @@ primary_region = 'cdg'
 
 [env]
   NODE_ENV = "production"
-  PUPPETEER_CACHE_DIR = "/root/.cache/puppeteer"
-  PUPPETEER_SKIP_DOWNLOAD = "false"
+  # No Puppeteer environment variables here - let's use defaults
 
 [http_service]
   internal_port = 3000

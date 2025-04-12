@@ -2,7 +2,7 @@
 
 # ==================== BASE ====================
 ARG NODE_VERSION=20.18.0
-FROM node:${NODE_VERSION}-slim AS base
+FROM node:${NODE_VERSION} AS base
 
 LABEL fly_launch_runtime="Node.js"
 
@@ -11,13 +11,6 @@ ENV NODE_ENV="production"
 
 # ==================== BUILD ====================
 FROM base AS build
-
-RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y \
-    build-essential \
-    node-gyp \
-    pkg-config \
-    python-is-python3
 
 COPY package.json ./
 COPY package-lock.json ./
@@ -28,13 +21,10 @@ COPY . .
 # ==================== FINAL ====================
 FROM base
 
-# 🧱 Instala dependencias mínimas necesarias para Chrome
-RUN apt-get update && apt-get install --no-install-recommends -y \
-    wget \
-    gnupg \
+# Instala las dependencias del sistema necesarias para Chrome
+RUN apt-get update && apt-get install -y \
     ca-certificates \
     fonts-liberation \
-    libappindicator3-1 \
     libasound2 \
     libatk-bridge2.0-0 \
     libatk1.0-0 \
@@ -55,35 +45,31 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     libx11-xcb1 \
     libxcb1 \
     libxcomposite1 \
+    libxcursor1 \
     libxdamage1 \
     libxext6 \
     libxfixes3 \
+    libxi6 \
     libxrandr2 \
+    libxrender1 \
     libxss1 \
     libxtst6 \
     lsb-release \
+    wget \
     xdg-utils \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
-# 🌐 Instala el navegador Chrome
-RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
-    && echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list \
-    && apt-get update \
-    && apt-get install -y google-chrome-stable \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
-
-# ✅ Configura Puppeteer
-ENV PUPPETEER_SKIP_DOWNLOAD=true \
-    PUPPETEER_EXECUTABLE_PATH=/usr/bin/google-chrome \
-    PUPPETEER_CACHE_DIR=/root/.cache/puppeteer \
-    NODE_OPTIONS="--max-old-space-size=512"
-
-# Crea directorio para el caché de Puppeteer
-RUN mkdir -p /root/.cache/puppeteer && \
-    chmod -R 777 /root/.cache
-
-# Copia desde la build
+# Copia los archivos de la aplicación
 COPY --from=build /app /app
+
+# Instala Puppeteer globalmente
+RUN npm install -g puppeteer
+
+# Verifica la instalación de Puppeteer
+RUN node -e "console.log('Puppeteer installation check')" && \
+    node -e "require('puppeteer').launch({ headless: true, args: ['--no-sandbox'] }).then(b => b.close())" && \
+    echo "Puppeteer is working correctly"
 
 # Expone el puerto
 EXPOSE 3000

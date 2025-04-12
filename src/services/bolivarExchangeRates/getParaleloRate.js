@@ -1,18 +1,56 @@
 const puppeteer = require('puppeteer');
+const fs = require('fs');
+const path = require('path');
 
 async function getDolarParaleloRate() {
   let browser = null;
   try {
     console.log('🚀 Iniciando Puppeteer...');
     console.log('📦 Versión de Puppeteer:', puppeteer.version);
-    console.log('🔍 Variables de entorno Puppeteer:');
-    console.log('- PUPPETEER_EXECUTABLE_PATH:', process.env.PUPPETEER_EXECUTABLE_PATH);
-    console.log('- PUPPETEER_SKIP_DOWNLOAD:', process.env.PUPPETEER_SKIP_DOWNLOAD);
-    console.log('- PUPPETEER_CACHE_DIR:', process.env.PUPPETEER_CACHE_DIR);
+    
+    // Imprimir información del sistema para depuración
+    console.log('🖥️ Información del sistema:');
+    console.log('- Platform:', process.platform);
+    console.log('- Architecture:', process.arch);
+    console.log('- Node version:', process.version);
+    console.log('- USER:', process.env.USER);
+    console.log('- HOME:', process.env.HOME);
+    
+    // Verificar ubicaciones de Chrome
+    const possibleChromePaths = [
+      '/usr/bin/google-chrome',
+      '/usr/bin/chromium',
+      '/usr/bin/chromium-browser',
+      '/snap/bin/chromium',
+      '/app/.cache/puppeteer/chrome/linux-*/chrome-linux/chrome',
+      process.env.PUPPETEER_EXECUTABLE_PATH
+    ];
+    
+    console.log('🔍 Verificando posibles ubicaciones de Chrome:');
+    for (const chromePath of possibleChromePaths) {
+      if (chromePath) {
+        let exists = false;
+        try {
+          // Si contiene un glob, lo expandimos
+          if (chromePath.includes('*')) {
+            const baseDir = chromePath.split('*')[0];
+            if (fs.existsSync(baseDir)) {
+              console.log(`- ${chromePath}: Base directory exists`);
+            } else {
+              console.log(`- ${chromePath}: Base directory does not exist`);
+            }
+          } else {
+            exists = fs.existsSync(chromePath);
+            console.log(`- ${chromePath}: ${exists ? 'EXISTE' : 'NO EXISTE'}`);
+          }
+        } catch (error) {
+          console.log(`- ${chromePath}: Error al verificar: ${error.message}`);
+        }
+      }
+    }
     
     const launchOptions = {
       headless: true,
-      executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/google-chrome',
       args: [
         '--no-sandbox',
         '--disable-setuid-sandbox',
@@ -20,18 +58,8 @@ async function getDolarParaleloRate() {
         '--disable-accelerated-2d-canvas',
         '--disable-gpu',
         '--window-size=1920x1080',
-        '--single-process',
-        '--no-zygote',
-        '--disable-extensions',
-        '--disable-software-rasterizer',
-        '--disable-features=site-per-process',
-        '--disable-features=IsolateOrigins',
-        '--disable-site-isolation-trials',
-        '--disable-web-security',
-        '--disable-features=BlockInsecurePrivateNetworkRequests'
       ],
       ignoreHTTPSErrors: true,
-      userDataDir: process.env.PUPPETEER_CACHE_DIR || '/root/.cache/puppeteer'
     };
 
     console.log('⚙️ Launch options:', JSON.stringify(launchOptions, null, 2));
@@ -40,28 +68,37 @@ async function getDolarParaleloRate() {
     browser = await puppeteer.launch(launchOptions);
     console.log('✅ Browser iniciado correctamente');
     
+    console.log('ℹ️ Información del browser:');
+    const version = await browser.version();
+    console.log('- Versión del browser:', version);
+    
     console.log('📄 Creando nueva página...');
     const page = await browser.newPage();
     await page.setViewport({ width: 1920, height: 1080 });
     console.log('✅ Página creada y viewport configurado');
 
     // Configura el timeout de la página
-    page.setDefaultNavigationTimeout(30000);
-    page.setDefaultTimeout(30000);
-    console.log('⏱️ Timeouts configurados');
+    page.setDefaultNavigationTimeout(60000);
+    page.setDefaultTimeout(60000);
+    console.log('⏱️ Timeouts configurados (60s)');
 
     console.log('🌐 Navegando a monitordolarvenezuela.com...');
     const navigationPromise = page.goto('https://monitordolarvenezuela.com/', {
       waitUntil: 'networkidle2',
-      timeout: 30000
+      timeout: 60000
     });
     
     console.log('⏳ Esperando a que la navegación se complete...');
     await navigationPromise;
     console.log('✅ Navegación completada');
 
+    // Capturar una captura de pantalla para depuración
+    console.log('📸 Capturando screenshot para depuración...');
+    await page.screenshot({ path: '/tmp/debug-screenshot.png' });
+    console.log('✅ Screenshot guardado en /tmp/debug-screenshot.png');
+
     console.log('🔍 Esperando selector p.font-bold.text-xl...');
-    await page.waitForSelector('p.font-bold.text-xl', { timeout: 10000 });
+    await page.waitForSelector('p.font-bold.text-xl', { timeout: 30000 });
     console.log('✅ Selector encontrado');
 
     console.log('📝 Extrayendo textos...');
