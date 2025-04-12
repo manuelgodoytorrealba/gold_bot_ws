@@ -14,7 +14,6 @@ primary_region = 'cdg'
 
 [env]
   NODE_ENV = "production"
-  # No Puppeteer environment variables here - let's use defaults
 
 [http_service]
   internal_port = 3000
