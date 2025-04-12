@@ -1,21 +1,17 @@
 # syntax = docker/dockerfile:1
 
-# Adjust NODE_VERSION as desired
+# ==================== BASE ====================
 ARG NODE_VERSION=20.18.0
 FROM node:${NODE_VERSION}-slim AS base
 
 LABEL fly_launch_runtime="Node.js"
 
-# Set working directory
 WORKDIR /app
-
-# Set production environment
 ENV NODE_ENV="production"
 
-# ========== Etapa de Build ==========
+# ==================== BUILD ====================
 FROM base AS build
 
-# Instalar paquetes necesarios para compilar módulos nativos
 RUN apt-get update -qq && \
     apt-get install --no-install-recommends -y \
     build-essential \
@@ -23,18 +19,16 @@ RUN apt-get update -qq && \
     pkg-config \
     python-is-python3
 
-# Instalar dependencias
 COPY package.json ./
+COPY package-lock.json ./
 RUN npm install
 
-# Copiar el código de la aplicación
 COPY . .
 
-# ========== Etapa final de Producción ==========
-# Final stage for app image
+# ==================== FINAL ====================
 FROM base
 
-# Instalar dependencias necesarias para Puppeteer/Chromium
+# 🧱 Instala dependencias necesarias para Puppeteer + Chrome
 RUN apt-get update && apt-get install --no-install-recommends -y \
     wget \
     ca-certificates \
@@ -72,11 +66,23 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     unzip \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Copiar el código de la app
+# 🧩 Instala Chrome estable
+RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
+    && echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list \
+    && apt-get update \
+    && apt-get install -y google-chrome-stable \
+    && rm -rf /var/lib/apt/lists/*
+
+# ✅ Configura Puppeteer para usar el Chrome instalado
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/google-chrome \
+    PUPPETEER_SKIP_DOWNLOAD=true \
+    NODE_OPTIONS="--max-old-space-size=512"
+
+# Copia desde la build
 COPY --from=build /app /app
 
-# Exponer el puerto
+# Expone el puerto
 EXPOSE 3000
 
-# Comando por defecto
-CMD [ "node", "src/index.js" ]
+# Comando final
+CMD ["node", "src/index.js"]

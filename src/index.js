@@ -16,3 +16,7 @@ async function main() {
 
 console.log('🚀 Iniciando bot...');
 main();
+
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'ok' });
+});

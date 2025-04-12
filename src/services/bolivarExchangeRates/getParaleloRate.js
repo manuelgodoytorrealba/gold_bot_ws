@@ -1,17 +1,31 @@
 const puppeteer = require('puppeteer');
 
 async function getDolarParaleloRate() {
+  let browser = null;
   try {
-    const browser = await puppeteer.launch({
+    browser = await puppeteer.launch({
       headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox']
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+        '--disable-accelerated-2d-canvas',
+        '--disable-gpu',
+        '--window-size=1920x1080',
+        '--single-process',
+        '--no-zygote',
+        '--disable-extensions',
+        '--disable-software-rasterizer'
+      ],
+      executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/google-chrome'
     });
     
     const page = await browser.newPage();
+    await page.setViewport({ width: 1920, height: 1080 });
 
     await page.goto('https://monitordolarvenezuela.com/', {
       waitUntil: 'networkidle2',
-      timeout: 0
+      timeout: 30000
     });
 
     await page.waitForSelector('p.font-bold.text-xl', { timeout: 10000 });
@@ -24,16 +38,19 @@ async function getDolarParaleloRate() {
     console.log('📦 Todos los textos encontrados:', texts);
 
     // Accedemos al segundo valor (índice 1) y limpiamos el texto
-    const rawText = texts[1]; // ← este es el que quieres
+    const rawText = texts[1];
     const cleaned = rawText.replace('Bs = ', '').replace(',', '.');
     const rate = parseFloat(cleaned);
 
     console.log(`💸 Tasa dólar paralelo extraída: ${rate}`);
-    await browser.close();
     return rate;
   } catch (error) {
     console.error('❌ Error al hacer scraping con Puppeteer:', error.message);
     return null;
+  } finally {
+    if (browser) {
+      await browser.close();
+    }
   }
 }
 
