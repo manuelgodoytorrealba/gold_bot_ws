@@ -19,11 +19,15 @@ async function getDolarParaleloRate() {
     // Navegamos a la página
     console.log('🌐 Navegando a monitordolarvenezuela.com...');
     await page.goto('https://monitordolarvenezuela.com/', {
-      waitUntil: 'networkidle',
+      waitUntil: 'domcontentloaded',
       timeout: 60000
     });
     console.log('✅ Navegación completada');
 
+    // Pausa explícita para dar tiempo a cargar el contenido dinámico
+    console.log('⏳ Esperando 5 segundos para que cargue el contenido...');
+    await page.waitForTimeout(5000);
+    
     // Capturar screenshot para debug (opcional)
     await page.screenshot({ path: '/tmp/debug-screenshot.png' });
     console.log('📸 Screenshot guardado en /tmp/debug-screenshot.png');
