@@ -65,10 +65,12 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
 
 # ✅ Configura Puppeteer
 ENV PUPPETEER_SKIP_DOWNLOAD=false \
+    PUPPETEER_CACHE_DIR=/app/.cache/puppeteer \
     NODE_OPTIONS="--max-old-space-size=512"
 
 # Crea directorio para el caché de Puppeteer
-RUN mkdir -p /app/.cache/puppeteer
+RUN mkdir -p /app/.cache/puppeteer && \
+    chown -R node:node /app/.cache
 
 # Copia desde la build
 COPY --from=build /app /app

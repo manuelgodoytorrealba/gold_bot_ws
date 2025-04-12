@@ -8,6 +8,7 @@ async function getDolarParaleloRate() {
     console.log('🔍 Variables de entorno Puppeteer:');
     console.log('- PUPPETEER_EXECUTABLE_PATH:', process.env.PUPPETEER_EXECUTABLE_PATH);
     console.log('- PUPPETEER_SKIP_DOWNLOAD:', process.env.PUPPETEER_SKIP_DOWNLOAD);
+    console.log('- PUPPETEER_CACHE_DIR:', process.env.PUPPETEER_CACHE_DIR);
     
     const launchOptions = {
       headless: true,
@@ -29,7 +30,7 @@ async function getDolarParaleloRate() {
         '--disable-features=BlockInsecurePrivateNetworkRequests'
       ],
       ignoreHTTPSErrors: true,
-      userDataDir: '/app/.cache/puppeteer'
+      userDataDir: process.env.PUPPETEER_CACHE_DIR || '/app/.cache/puppeteer'
     };
 
     console.log('⚙️ Launch options:', JSON.stringify(launchOptions, null, 2));
