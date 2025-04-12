@@ -4,6 +4,7 @@ async function getDolarParaleloRate() {
   let browser = null;
   try {
     console.log('🚀 Iniciando Puppeteer...');
+    console.log('🔍 Chromium path:', process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/chromium');
     
     const launchOptions = {
       headless: true,
@@ -22,10 +23,11 @@ async function getDolarParaleloRate() {
         '--disable-features=IsolateOrigins',
         '--disable-site-isolation-trials',
         '--disable-web-security',
-        '--disable-features=BlockInsecurePrivateNetworkRequests'
+        '--disable-features=BlockInsecurePrivateNetworkRequests',
+        '--user-data-dir=/home/chromium'
       ],
-      ignoreHTTPSErrors: true,
-      userDataDir: '/app/.cache/puppeteer'
+      executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/chromium',
+      ignoreHTTPSErrors: true
     };
 
     console.log('⚙️ Launch options:', JSON.stringify(launchOptions, null, 2));
