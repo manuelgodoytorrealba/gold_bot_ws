@@ -1,6 +1,6 @@
 # syntax = docker/dockerfile:1
 
-FROM mcr.microsoft.com/playwright:v1.42.1-jammy
+FROM mcr.microsoft.com/playwright:v1.51.1-jammy
 
 WORKDIR /app
 
