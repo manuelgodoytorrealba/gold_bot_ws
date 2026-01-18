@@ -17,7 +17,9 @@ async function getGoldPrices() {
       ounce: price,
       gram: price_gram_24k,
       changeUsd: ch,
-      changePercent: chp
+      changePercent: chp,
+      changePeriod: "vs cierre previo",
+      metal: "XAU (oro spot 24K)"
     };
   } catch (error) {
     console.error('❌ Error al obtener el precio del oro:', error.response?.data || error.message);

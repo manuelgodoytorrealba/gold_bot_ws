@@ -7,23 +7,23 @@
 const {getBTCPrice} = require('../services/cryptoService');
 const {getGoldPrices} = require('../services/goldService');
 const {getBCVRate} = require('../services/bolivarExchangeRates/getBCVRate');
-const {getDolarParaleloRate} = require('../services/bolivarExchangeRates/getParaleloRate');
+
 
 async function generateGoldReport() {
   const btcPrice = await getBTCPrice();
   const goldPrices = await getGoldPrices();
   const bcvRate = await getBCVRate();
-  const dolarParaleloRate = await getDolarParaleloRate();
+
   return [
     'Ramon Antonio',
-   `${goldPrices.ounce}`,
-    `${parseFloat(goldPrices.gram).toFixed(2)}`,
+   `${goldPrices.ounce} USD`,
+    `${parseFloat(goldPrices.gram).toFixed(2)} USD`,
     `${goldPrices.changeUsd}`,
     `${goldPrices.changePercent}`,
+     goldPrices.changePeriod,
     `${bcvRate}`,
-    `${dolarParaleloRate}`,
     `${btcPrice} USD`,
-    'Ponga los pies en el barro que asi coge calor !! carajo !!',
+    'Ponga los pies en el barro que asi coge calor !! Carajo !!',
   ];
 
   }

@@ -66,7 +66,7 @@ async function getDolarParaleloRate() {
   } catch (error) {
     console.error('❌ Error al hacer scraping con Playwright:', error.message);
     console.error('📚 Stack trace:', error.stack);
-    return null;
+    return "N/A";
   } finally {
     if (browser) {
       console.log('🛑 Cerrando browser...');

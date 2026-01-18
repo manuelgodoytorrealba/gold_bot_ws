@@ -5,5 +5,7 @@ module.exports = {
     phoneNumberId: process.env.PHONE_NUMBER_ID,
     toNumber: process.env.TO_NUMBER_1,
     toNumber2: process.env.TO_NUMBER_2,
-    goldApiKey: process.env.GOLD_API_KEY
+    goldApiKey: process.env.GOLD_API_KEY,
+    telegramToken: process.env.TELEGRAM_TOKEN,
+    telegramChatId: process.env.TELEGRAM_CHAT_ID
 };
